@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_SIZE 5  // Maximum number of parking slots
+
+// Structure to represent a circular queue
+struct ParkingLot {
+    int front, rear;
+    int slots[MAX_SIZE]; // Parking slots represented as an array
+};
+
+// Function to initialize the parking lot
+void initializeParkingLot(struct ParkingLot *lot) {
+    lot->front = -1;
+    lot->rear = -1;
+}
+
+// Check if the parking lot is full
+int isFull(struct ParkingLot *lot) {
+    return (lot->front == 0 && lot->rear == MAX_SIZE - 1) || (lot->front == lot->rear + 1);
+}
+
+// Check if the parking lot is empty
+int isEmpty(struct ParkingLot *lot) {
+    return lot->front == -1;
+}
+
+// Enqueue operation: Park a vehicle
+void parkVehicle(struct ParkingLot *lot, int vehicleID) {
+    if (isFull(lot)) {
+        printf("Parking Lot is Full! Cannot park the vehicle with ID: %d\n", vehicleID);
+        return;
+    }
+
+    if (isEmpty(lot)) {
+        lot->front = 0;
+        lot->rear = 0;
+    } else {
+        lot->rear = (lot->rear + 1) % MAX_SIZE;
+    }
+    lot->slots[lot->rear] = vehicleID;
+    printf("Vehicle with ID: %d has been parked.\n", vehicleID);
+}
+
+// Dequeue operation: A vehicle exits
+void exitVehicle(struct ParkingLot *lot) {
+    if (isEmpty(lot)) {
+        printf("Parking Lot is Empty! No vehicle to exit.\n");
+        return;
+    }
+
+    printf("Vehicle with ID: %d has exited the parking lot.\n", lot->slots[lot->front]);
+
+    if (lot->front == lot->rear) {
+        lot->front = -1;
+        lot->rear = -1;
+    } else {
+        lot->front = (lot->front + 1) % MAX_SIZE;
+    }
+}
+
+// Display the current parking lot status
+void displayParkingLot(struct ParkingLot *lot) {
+    if (isEmpty(lot)) {
+        printf("Parking Lot is Empty.\n");
+        return;
+    }
+
+    printf("Current Vehicles in Parking Lot:\n");
+    int i = lot->front;
+    while (i != lot->rear) {
+        printf("Vehicle ID: %d\n", lot->slots[i]);
+        i = (i + 1) % MAX_SIZE;
+    }
+    printf("Vehicle ID: %d\n", lot->slots[lot->rear]);
+}
+
+int main() {
+    struct ParkingLot lot;
+    initializeParkingLot(&lot);
+
+    // Test cases
+    parkVehicle(&lot, 101); // Vehicle with ID 101 enters
+    parkVehicle(&lot, 102); // Vehicle with ID 102 enters
+    parkVehicle(&lot, 103); // Vehicle with ID 103 enters
+    parkVehicle(&lot, 104); // Vehicle with ID 104 enters
+    parkVehicle(&lot, 105); // Vehicle with ID 105 enters
+    parkVehicle(&lot, 106); // Should print "Parking Lot is Full!"
+    
+    displayParkingLot(&lot);
+
+    exitVehicle(&lot); // Vehicle with ID 101 exits
+    exitVehicle(&lot); // Vehicle with ID 102 exits
+
+    displayParkingLot(&lot);
+
+    return 0;
+}
